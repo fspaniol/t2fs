@@ -1,3 +1,9 @@
+#include "../include/t2fs.h"
+#include "../include/apidisk.h"
+#include "../include/bitmap2.h"
+#include <stdio.h>
+
+#ifndef __LIBT2FS___
 #define __LIBT2FS___
 #define	SECTOR_SIZE	256
 #define TYPEVAL_INVALIDO    0x00
@@ -5,10 +11,6 @@
 #define TYPEVAL_DIRETORIO   0x02
 
 #define	INVALID_PTR	-1
-
-#include "../include/t2fs.h"
-#include "../include/apidisk.h"
-#include "../include/bitmap2.h"
 
 typedef int FILE2;
 typedef int DIR2;
@@ -274,6 +276,5 @@ int readdir2 (DIR2 handle, DIRENT2 *dentry){
 int closedir2 (DIR2 handle){
     return -1;
 }
-
 
 #endif
