@@ -12,12 +12,24 @@
 
 #define	INVALID_PTR	-1
 
+/* Valores */
+#define T2FS_SUCCESS 0
+#define T2FS_ERROR -1
+
 typedef int FILE2;
 typedef int DIR2;
 
 typedef unsigned char BYTE;
 typedef unsigned short int WORD;
 typedef unsigned int DWORD;
+
+/* Estruturas */
+typedef struct t2fs_superbloco SUPERBLOCK;
+typedef struct t2fs_inode      INODE;
+typedef struct t2fs_record     RECORD;
+
+//globais
+FS_INFORMATION file_system_info;
 
 /*-----------------------------------------------------------------------------
  FunÁ„o: Usada para identificar os desenvolvedores do T2FS.
@@ -202,6 +214,46 @@ int seek2 (FILE2 handle, DWORD offset){
 	Em caso de erro, ser· retornado um valor diferente de zero.
  -----------------------------------------------------------------------------*/
 int mkdir2 (char *pathname){
+	 int status_retorno = 0;
+
+    //Verifica se a biblioteca já foi inicializada.
+    //if(fs_first_call)
+    //{
+    //    initialize_all();
+    //    fs_first_call = FALSE;
+    //}
+
+    //Checa se o nome do arquivo é sintaticamente válido.
+    //BOOL name_is_valid;
+    check_filename_is_valid(pathname, &name_is_valid);
+
+    if(name_is_valid)
+    {
+        //Obtém o nome do arquivo em si.
+        char main_name[MAX_FILE_NAME_SIZE];
+        get_record_name_from_path_string(pathname, main_name);
+
+        //Verifica se o tamanho do nome está nos limites corretos.
+        if(strlen(pathname) < MAX_FILE_NAME_SIZE && strlen(main_name) < T2_GROUP_ID_STRING_SIZE)
+        {
+            char path_to_create[MAX_FILE_NAME_SIZE];
+            strcpy(path_to_create, pathname);
+
+            //Cria o diretório.
+            ret_status = alloc_record_by_path(path_to_create, TYPEVAL_DIRETORIO, NULL);
+
+            if(ret_status != 0)
+                ret_status = T2_ERROR;
+        }
+
+        else
+            ret_status = T2_ERROR;
+    }
+
+    else
+        ret_status = T2_ERROR;
+
+    return ret_status;
     return -1;
 }
 
@@ -275,6 +327,44 @@ int readdir2 (DIR2 handle, DIRENT2 *dentry){
  -----------------------------------------------------------------------------*/
 int closedir2 (DIR2 handle){
     return -1;
+}
+
+
+int inicializa_inf_disco (){
+
+	local_status = 0;
+
+	SUPERBLOCK file_system_superblock;
+
+	//Lê o superbloco e inicializa variáveis das informações contidas nele.
+    char* buffer_superbloco = (char*) malloc(SECTOR_SIZE);
+
+    //se o buffer inicializou corretamente
+    if(buffer_superbloco != NULL)
+    {
+    	if(!read_sector(0, buffer_superbloco)) //le o setor 0, superbloco do disco retorna != 0 
+        {
+        	//copia para o file_system_superblock o buffer inicializado
+        	memcpy(&file_system_superblock, superblock_buffer, sizeof(SUPERBLOCK));
+
+	        file_system_info.numSetoresSuperBloco = file_system_superblock.superblockSize;
+	        file_system_info.numSetoresBitmapDeBlocos = file_system_superblock.freeBlocksBitmapSize;
+	        file_system_info.numSetoresBitmapDeInodes = file_system_superblock.freeInodeBitmapSize;
+	        file_system_info.numSetoresUmBlocksize = file_system_superblock.blockSize;
+	        file_system_info.numSetoresTotalT2FS = file_system_superblock.diskSize;
+	        file_system_info.numSetoresInodes = file_system_superblock.inodeAreaSize;
+
+        } else {
+        	local_status = T2FS_ERROR;
+        }
+
+        free(buffer_superbloco);
+    } else {
+    	local_status = T2FS_ERROR;
+    }
+
+    return local_status;
+
 }
 
 #endif

@@ -5,11 +5,14 @@
 
 #define	SECTOR_SIZE	256
 
-#define TYPEVAL_INVALIDO    0x00
-#define TYPEVAL_REGULAR     0x01
-#define TYPEVAL_DIRETORIO   0x02
+#define TYPEVAL_INVALIDO    0x00 //caso removamos o arquivo, a entrada do diretório tem que ser atualizada para INVALIDA
+#define TYPEVAL_REGULAR     0x01 //arquivo regular
+#define TYPEVAL_DIRETORIO   0x02 //diretorio
 
-#define	INVALID_PTR	-1
+#define RESULT_OK 0 //pra salvar pra comparação quando um resultado foi ok, usado no libapidisk por exemplo, read_sector, write_sector, 
+#define OK_BITMAP1	1 //retorna 1 ou 0 se estiver ok
+#define OK_BITMAP0	0 //retorna 1 ou 0 se estiver ok
+
 
 typedef int FILE2;
 typedef int DIR2;
@@ -20,13 +23,25 @@ typedef unsigned int DWORD;
 
 #pragma pack(push, 1)
 
+/* disc info -> global para ter acesso a hora que quisermos*/
+typedef struct file_system_information
+{
+	WORD numSetoresSuperBloco;
+    WORD numSetoresBitmapDeBlocos;
+    WORD numSetoresBitmapDeInodes;
+    WORD numSetoresInodes;
+    WORD numSetoresUmBlocksize;
+    DWORD numSetoresTotalT2FS;
+
+} FS_INFORMATION;
+
 /** Superbloco */
 struct t2fs_superbloco {
     char    id[4];          	/* Identificação do sistema de arquivo. É formado pelas letras “T2FS”.             */
     WORD    version;        	/* Versão atual desse sistema de arquivos: (valor fixo 0x7E0=2016; 2=2º semestre). */
     WORD    superblockSize; 	/* Quantidade de setores que formam o superbloco.                                  */
     WORD    freeBlocksBitmapSize; /* Quantidade de setores usados para armazenar o bitmap de blocos de dados livres e ocupados. */
-    WORD    freeInodeBitmapSize;/* Quantidade de setores usados para armazenar o bitmap de i-nodes livres e ocupados. */
+    WORD    freeInodeBitmapSize; /* Quantidade de setores usados para armazenar o bitmap de i-nodes livres e ocupados. */
     WORD    inodeAreaSize;	/* Quantidade de setores usados para armazenar os i-nodes do sistema.                 */
     WORD    blockSize;		/* Quantidade de setores que formam um bloco lógico.                                  */
     DWORD   diskSize;		/* Quantidade total de setores na partição T2FS. Inclui o superbloco, áreas de bitmap, área de i-node e blocos de dados */
