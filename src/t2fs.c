@@ -10,8 +10,6 @@
 #define TYPEVAL_REGULAR     0x01
 #define TYPEVAL_DIRETORIO   0x02
 
-#define	INVALID_PTR	-1
-
 /* Valores */
 #define T2FS_SUCCESS 0
 #define T2FS_ERROR -1

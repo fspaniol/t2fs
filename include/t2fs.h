@@ -9,6 +9,8 @@
 #define TYPEVAL_REGULAR     0x01 //arquivo regular
 #define TYPEVAL_DIRETORIO   0x02 //diretorio
 
+#define	INVALID_PTR	-1
+
 #define RESULT_OK 0 //pra salvar pra comparação quando um resultado foi ok, usado no libapidisk por exemplo, read_sector, write_sector, 
 #define OK_BITMAP1	1 //retorna 1 ou 0 se estiver ok
 #define OK_BITMAP0	0 //retorna 1 ou 0 se estiver ok
